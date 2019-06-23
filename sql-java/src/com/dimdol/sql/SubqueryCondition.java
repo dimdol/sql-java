@@ -1,16 +1,16 @@
 package com.dimdol.sql;
 
-class SubqueryCondtion extends Condition {
+class SubqueryCondition extends Condition {
 
     private Sql<?> subquery;
 
     private String operand1;
 
-    SubqueryCondtion(Op operator, Sql<?> subquery) {
+    SubqueryCondition(Op operator, Sql<?> subquery) {
         this(operator, subquery, null);
     }
 
-    SubqueryCondtion(Op operator, Sql<?> subquery, String operand1) {
+    SubqueryCondition(Op operator, Sql<?> subquery, String operand1) {
         super(operator, Bind.VALUE);
         this.operand1 = operand1;
         this.subquery = subquery;

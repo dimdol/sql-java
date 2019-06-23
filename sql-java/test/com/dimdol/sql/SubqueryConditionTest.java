@@ -19,17 +19,17 @@ public class SubqueryConditionTest {
 
     @Test
     public void equal() {
-        assertEquals("NAME = (SELECT NAME FROM USER WHERE ID = ?)", new SubqueryCondtion(Op.EQUAL, subquery, "NAME").toSql());
+        assertEquals("NAME = (SELECT NAME FROM USER WHERE ID = ?)", new SubqueryCondition(Op.EQUAL, subquery, "NAME").toSql());
     }
 
     @Test
     public void exists() {
-        assertEquals("EXISTS (SELECT NAME FROM USER WHERE ID = ?)", new SubqueryCondtion(Op.EXISTS, subquery).toSql());
+        assertEquals("EXISTS (SELECT NAME FROM USER WHERE ID = ?)", new SubqueryCondition(Op.EXISTS, subquery).toSql());
     }
 
     @Test
     public void notExists() {
-        assertEquals("NOT EXISTS (SELECT NAME FROM USER WHERE ID = ?)", new SubqueryCondtion(Op.NOT_EXISTS, subquery).toSql());
+        assertEquals("NOT EXISTS (SELECT NAME FROM USER WHERE ID = ?)", new SubqueryCondition(Op.NOT_EXISTS, subquery).toSql());
     }
 
 }

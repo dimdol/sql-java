@@ -32,16 +32,16 @@ import java.util.Set;
 
 // DROP INDEX
 
-// ±âÅ¸
+// ï¿½ï¿½Å¸
 // TODO OFFSET FETCH
 
 // JOIN
 // TODO INNER, FULL, LEFT, RIGHT
 
 // GROUP BY
-// TODO COUNT, MIN, MAX, SUM, AVG ¸Þ¼Òµå Á¦°ø. ÀÌ ¸Þ¼Òµå¸¦ »ç¿ëÇÏ¸é ÀÚµ¿À¸·Î GROUP BY ¼³Á¤
+// TODO COUNT, MIN, MAX, SUM, AVG ï¿½Þ¼Òµï¿½ ï¿½ï¿½ï¿½ï¿½. ï¿½ï¿½ ï¿½Þ¼Òµå¸¦ ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½Úµï¿½ï¿½ï¿½ï¿½ï¿½ GROUP BY ï¿½ï¿½ï¿½ï¿½
 
-// ¿À¶óÅ¬
+// ï¿½ï¿½ï¿½ï¿½Å¬
 // HINT, LEFT JOIN(+)
 public class Sql<T> implements WhereClause {
 
@@ -155,7 +155,7 @@ public class Sql<T> implements WhereClause {
 
         Sql<?> subquery = new Sql<>();
         builder.build(subquery);
-        addCondition(new SubqueryCondtion(operator, subquery));
+        addCondition(new SubqueryCondition(operator, subquery));
     }
 
     @Override
@@ -166,7 +166,7 @@ public class Sql<T> implements WhereClause {
 
         Sql<?> subquery = new Sql<>();
         builder.build(subquery);
-        addCondition(new SubqueryCondtion(operator, subquery, operand1));
+        addCondition(new SubqueryCondition(operator, subquery, operand1));
     }
 
     private void addCondition(Condition condition) {

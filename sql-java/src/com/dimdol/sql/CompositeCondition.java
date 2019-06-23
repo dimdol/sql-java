@@ -29,7 +29,7 @@ public class CompositeCondition extends Condition implements WhereClause {
 
         Sql<?> subquery = new Sql<>();
         builder.build(subquery);
-        addCondition(new SubqueryCondtion(operator, subquery));
+        addCondition(new SubqueryCondition(operator, subquery));
     }
 
     @Override
@@ -40,7 +40,7 @@ public class CompositeCondition extends Condition implements WhereClause {
 
         Sql<?> subquery = new Sql<>();
         builder.build(subquery);
-        addCondition(new SubqueryCondtion(operator, subquery, operand1));
+        addCondition(new SubqueryCondition(operator, subquery, operand1));
     }
 
     @Override
