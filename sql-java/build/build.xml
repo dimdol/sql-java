@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="build sql" default="default">
+
+  <property file="build.properties" prefixValues="true" />
+
+  <target name="init">
+    <delete dir="${build.temp_dir}" />
+    <mkdir dir="${build.temp_dir}" />
+    <mkdir dir="${build.temp_dir}/src" />
+  	<mkdir dir="${build.temp_dir}/classes" />
+  </target>
+
+  <target name="copy">
+    <copy todir="${build.temp_dir}/src">
+      <fileset dir="${build.source_src}">
+        <include name="*/**" />
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="compile">
+    <javac srcdir="${build.temp_dir}/src"
+           destdir="${build.temp_dir}/classes"
+           source="${compile.option.source}"
+           target="${compile.option.target}"
+           debug="${compile.option.debug}"
+           encoding="${compile.option.encoding}"
+           includeantruntime="false" />
+  </target>
+
+  <target name="package">
+    <jar destfile="${build.jar_file}">
+      <fileset dir="${build.temp_dir}/classes">
+        <include name="*/**" />
+      </fileset>
+    </jar>
+  </target>
+
+  <target name="default">
+    <echo>${ant.project.name}</echo>
+    <antcall target="init" />
+  	<antcall target="copy" />
+  	<antcall target="compile" />
+  	<antcall target="package" />
+  </target>
+
+</project>
