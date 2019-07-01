@@ -2,14 +2,14 @@ package com.dimdol.sql;
 
 class SubqueryTable extends Table {
 
-    private Sql<?> subquery;
+    private Sql subquery;
 
-    SubqueryTable(Sql<?> subquery) {
+    SubqueryTable(Sql subquery) {
         super(null);
         this.subquery = subquery;
     }
 
-    SubqueryTable(Sql<?> subquery, String alas) {
+    SubqueryTable(Sql subquery, String alas) {
         super(null, alas);
         this.subquery = subquery;
     }

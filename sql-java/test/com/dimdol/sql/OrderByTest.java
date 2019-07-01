@@ -1,14 +1,14 @@
 package com.dimdol.sql;
 
-import org.junit.Test;
-
 import static org.junit.Assert.*;
+
+import org.junit.Test;
 
 public class OrderByTest {
 
     @Test
     public void orderBy() {
-        Sql<?> sql = new Sql<>();
+        Sql sql = new Sql();
         sql.select("UUID");
         sql.select("FIRST_NAME");
         sql.from("USER");
@@ -18,7 +18,7 @@ public class OrderByTest {
 
     @Test
     public void multiple() {
-        Sql<?> sql = new Sql<>();
+        Sql sql = new Sql();
         sql.select("UUID");
         sql.select("FIRST_NAME");
         sql.from("USER");
@@ -29,7 +29,7 @@ public class OrderByTest {
 
     @Test
     public void asc() {
-        Sql<?> sql = new Sql<>();
+        Sql sql = new Sql();
         sql.select("UUID");
         sql.select("FIRST_NAME");
         sql.from("USER");
@@ -39,17 +39,17 @@ public class OrderByTest {
 
     @Test
     public void desc() {
-        Sql<?> sql = new Sql<>();
+        Sql sql = new Sql();
         sql.select("UUID");
         sql.select("FIRST_NAME");
         sql.from("USER");
         sql.orderBy("FIRST_NAME", Op.DESC);
         assertEquals("SELECT UUID, FIRST_NAME FROM USER ORDER BY FIRST_NAME DESC", sql.toSql());
     }
-    
+
     @Test(expected = IllegalArgumentException.class)
     public void unsupportedAscendingMode() {
-        Sql<?> sql = new Sql<>();
+        Sql sql = new Sql();
         sql.select("UUID");
         sql.select("FIRST_NAME");
         sql.from("USER");

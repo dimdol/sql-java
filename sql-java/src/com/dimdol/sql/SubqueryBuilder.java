@@ -3,6 +3,6 @@ package com.dimdol.sql;
 @FunctionalInterface
 public interface SubqueryBuilder {
 
-    void build(Sql<?> sql);
+    void build(Sql sql);
 
 }

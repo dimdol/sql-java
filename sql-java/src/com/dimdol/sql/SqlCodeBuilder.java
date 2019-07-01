@@ -53,11 +53,11 @@ class SqlCodeBuilder {
         code.append(str);
     }
 
-    void append(Sql<?> sql) {
+    void append(Sql sql) {
         sql.buildQuery(this);
     }
 
-    void append(Op operator, Sql<?> sql) {
+    void append(Op operator, Sql sql) {
         addSpace();
         append(operator.toSql());
         sql.buildQuery(this);

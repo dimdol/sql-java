@@ -4,14 +4,14 @@ class SetQuery {
 
     private Op operator;
 
-    private Sql<?> sql;
+    private Sql sql;
 
-    SetQuery(Op operator, Sql<?> sql) {
+    SetQuery(Op operator, Sql sql) {
         this.operator = operator;
         this.sql = sql;
     }
 
-    public Sql<?> getSql() {
+    public Sql getSql() {
         return sql;
     }
 

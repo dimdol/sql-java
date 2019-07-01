@@ -2,9 +2,9 @@ package com.dimdol.sql;
 
 public class SubqueryColumn extends Column {
 
-    private Sql<?> subquery;
+    private Sql subquery;
 
-    public SubqueryColumn(Sql<?> subquery, String alias) {
+    public SubqueryColumn(Sql subquery, String alias) {
         super(null, alias);
         this.subquery = subquery;
     }

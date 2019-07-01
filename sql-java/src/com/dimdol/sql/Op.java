@@ -4,7 +4,7 @@ public enum Op {
 
     EQUAL("="),
 
-    NOT_EQUAL("<>"), // TODO ISO «•¡ÿ¿Ã æ∆¥— != ø° ¥Î«— √≥∏Æ
+    NOT_EQUAL("<>"), // TODO ISO ÌëúÏ§ÄÏù¥ ÏïÑÎãå != Ïóê ÎåÄÌïú Ï≤òÎ¶¨
 
     GREATER_THAN(">"),
 
@@ -14,9 +14,9 @@ public enum Op {
 
     LESS_THAN_OR_EQUAL("<="),
 
-    NOT_LESS_THAN("!<"), // ISO «•¡ÿ¿Ã æ∆¥‘
+    NOT_LESS_THAN("!<"), // ISO ÌëúÏ§ÄÏù¥ ÏïÑÎãò
 
-    NOT_GREATER_THAN("!>"), // ISO «•¡ÿ¿Ã æ∆¥‘
+    NOT_GREATER_THAN("!>"), // ISO ÌëúÏ§ÄÏù¥ ÏïÑÎãò
 
     IS_NULL("IS NULL"),
 
@@ -40,6 +40,8 @@ public enum Op {
 
     ANY("ANY"),
 
+    SOME("SOME"),
+
     ALL("ALL"),
 
     AND("AND"),
@@ -60,7 +62,7 @@ public enum Op {
 
     DESC("DESC");
 
-    private String op;
+    private final String op;
 
     private Op(String op) {
         this.op = op;

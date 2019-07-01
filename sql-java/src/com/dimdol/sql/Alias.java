@@ -4,7 +4,13 @@ class Alias {
 
     private String alias;
 
+    private boolean forTable;
+
     Alias(String alias) {
+        this(alias, false);
+    }
+
+    Alias(String alias, boolean forTable) {
         if (alias == null) {
             throw new NullPointerException();
         }
@@ -16,10 +22,11 @@ class Alias {
         } else {
             this.alias = "\"" + alias + "\"";
         }
+        this.forTable = forTable;
     }
 
     String toSql() {
-        return " AS " + alias;
+        return forTable ? " " + alias : " AS " + alias;
     }
 
 }

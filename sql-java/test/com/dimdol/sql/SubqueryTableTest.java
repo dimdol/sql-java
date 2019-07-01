@@ -1,17 +1,17 @@
 package com.dimdol.sql;
 
-import org.junit.Test;
-
 import static org.junit.Assert.*;
+
+import org.junit.Test;
 
 public class SubqueryTableTest {
 
     @Test
     public void base() {
-        Sql<?> subquery = new Sql<>();
+        Sql subquery = new Sql();
         subquery.selectAll();
         subquery.from("USER");
-        subquery.where(Op.EQUAL, Bind.PARAM, "TYPE", "A");
+        subquery.where("TYPE", Op.EQUAL, Bind.PARAM, "A");
 
         assertEquals("(SELECT * FROM USER WHERE TYPE = ?)", new SubqueryTable(subquery).toSql());
         assertEquals(1, subquery.getParameters().size());

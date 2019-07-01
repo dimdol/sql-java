@@ -1,13 +1,16 @@
 package com.dimdol.sql;
 
-class StringCondition extends Condition implements Parameter {
+class NumberCondition extends Condition implements Parameter {
 
     private String operand1;
 
-    private String operand2;
+    private Number operand2;
 
-    StringCondition(Op operator, Bind bind, String operand1, String operand2) {
+    NumberCondition(Op operator, Bind bind, String operand1, Number operand2) {
         super(operator, bind);
+        if (bind == Bind.COLUMN) {
+            throw new IllegalArgumentException();
+        }
         this.operand1 = operand1;
         this.operand2 = operand2;
     }
@@ -33,10 +36,7 @@ class StringCondition extends Condition implements Parameter {
             builder.append(operand1 + " " + getOperator().toSql() + " ?");
             break;
         case VALUE:
-            builder.append(operand1 + " " + getOperator().toSql() + " '" + operand2 + "'");
-            break;
-        case COLUMN:
-            builder.append(operand1 + " " + getOperator().toSql() + " " + operand2);
+            builder.append(operand1 + " " + getOperator().toSql() + " " + operand2 + "");
             break;
         default:
             throw new IllegalStateException();

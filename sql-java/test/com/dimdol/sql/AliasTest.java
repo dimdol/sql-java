@@ -1,14 +1,19 @@
 package com.dimdol.sql;
 
-import org.junit.Test;
-
 import static org.junit.Assert.*;
+
+import org.junit.Test;
 
 public class AliasTest {
 
     @Test
-    public void base() {
+    public void column() {
         assertEquals(" AS A", new Alias("A").toSql());
+    }
+
+    @Test
+    public void table() {
+        assertEquals(" A", new Alias("A", true).toSql());
     }
 
     @Test

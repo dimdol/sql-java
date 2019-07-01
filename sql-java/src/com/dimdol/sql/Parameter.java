@@ -4,4 +4,6 @@ public interface Parameter {
 
     boolean prepared();
 
+    Object[] getValues();
+
 }

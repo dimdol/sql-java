@@ -1,14 +1,14 @@
 package com.dimdol.sql;
 
-import org.junit.Test;
-
 import static org.junit.Assert.*;
+
+import org.junit.Test;
 
 public class SetSqlTest {
 
     @Test
     public void single() {
-        Sql<?> sql = new Sql<>();
+        Sql sql = new Sql();
         sql.union(s -> {
             s.select("ID");
             s.select("NAME");
@@ -19,7 +19,7 @@ public class SetSqlTest {
 
     @Test
     public void union() {
-        Sql<?> sql = new Sql<>();
+        Sql sql = new Sql();
         sql.union(s -> {
             s.select("ID");
             s.select("NAME");
@@ -35,7 +35,7 @@ public class SetSqlTest {
 
     @Test
     public void unionAll() {
-        Sql<?> sql = new Sql<>();
+        Sql sql = new Sql();
         sql.unionAll(s -> {
             s.select("ID");
             s.select("NAME");
@@ -51,7 +51,7 @@ public class SetSqlTest {
 
     @Test
     public void except() {
-        Sql<?> sql = new Sql<>();
+        Sql sql = new Sql();
         sql.except(s -> {
             s.select("ID");
             s.select("NAME");
@@ -67,7 +67,7 @@ public class SetSqlTest {
 
     @Test
     public void intersect() {
-        Sql<?> sql = new Sql<>();
+        Sql sql = new Sql();
         sql.intersect(s -> {
             s.select("ID");
             s.select("NAME");
@@ -83,7 +83,7 @@ public class SetSqlTest {
 
     @Test
     public void all() {
-        Sql<?> sql = new Sql<>();
+        Sql sql = new Sql();
         sql.union(s -> {
             s.select("ID");
             s.select("NAME");
@@ -109,14 +109,12 @@ public class SetSqlTest {
             s.select("NAME");
             s.from("E");
         });
-        assertEquals(
-                "(SELECT ID, NAME FROM A UNION SELECT ID, NAME FROM B UNION ALL SELECT ID, NAME FROM C EXCEPT SELECT ID, NAME FROM D INTERSECT SELECT ID, NAME FROM E)",
-                sql.toSql());
+        assertEquals("(SELECT ID, NAME FROM A UNION SELECT ID, NAME FROM B UNION ALL SELECT ID, NAME FROM C EXCEPT SELECT ID, NAME FROM D INTERSECT SELECT ID, NAME FROM E)", sql.toSql());
     }
 
     @Test
     public void nexted() {
-        Sql<?> sql = new Sql<>();
+        Sql sql = new Sql();
         sql.union(s -> {
             s.select("ID");
             s.select("NAME");

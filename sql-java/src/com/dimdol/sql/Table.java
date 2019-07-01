@@ -13,7 +13,7 @@ class Table extends Unit {
     Table(String name, String alias) {
         this.name = name;
         if (alias != null) {
-            this.alias = new Alias(alias);
+            this.alias = new Alias(alias, true);
         }
     }
 

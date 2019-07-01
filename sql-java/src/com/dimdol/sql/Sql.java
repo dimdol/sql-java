@@ -1,49 +1,15 @@
 package com.dimdol.sql;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-// SELECT
-// TODO TOP (PERCENT)
-// TODO LIMIT
-
-// WHERE
-// TODO AND
-// TODO OR
-// TODO LIKE
-
-// UPDATE
-
-// DELETE
-
-// INSERT INTO
-
-// CREATE DATABASE
-
-// ALTER DATABASE
-
-// CREATE TABLE
-
-// DROP TABLE
-
-// CREATE INDEX
-
-// DROP INDEX
-
-// ��Ÿ
-// TODO OFFSET FETCH
-
-// JOIN
-// TODO INNER, FULL, LEFT, RIGHT
-
-// GROUP BY
-// TODO COUNT, MIN, MAX, SUM, AVG �޼ҵ� ����. �� �޼ҵ带 ����ϸ� �ڵ����� GROUP BY ����
-
-// ����Ŭ
-// HINT, LEFT JOIN(+)
-public class Sql<T> implements WhereClause {
+public class Sql implements WhereClause {
 
     private Op whereMode;
 
@@ -90,7 +56,7 @@ public class Sql<T> implements WhereClause {
     }
 
     public void select(SubqueryBuilder builder, String alias) {
-        Sql<?> subquery = new Sql<>();
+        Sql subquery = new Sql();
         builder.build(subquery);
         addColumn(new SubqueryColumn(subquery, alias));
     }
@@ -115,7 +81,7 @@ public class Sql<T> implements WhereClause {
     }
 
     public void from(SubqueryBuilder builder, String alias) {
-        Sql<?> subquery = new Sql<>();
+        Sql subquery = new Sql();
         builder.build(subquery);
         addTable(new SubqueryTable(subquery, alias));
     }
@@ -129,22 +95,25 @@ public class Sql<T> implements WhereClause {
 
     public void join() {
         /*
-         * sql.join(j -> { j.from("USER"); j.from("GROUP"); j.on("GROUP_ID",
-         * "ID"); });
+         * sql.join(j -> { j.from("USER"); j.from("GROUP"); j.on("GROUP_ID", "ID"); });
          * 
-         * sql.join(Op.INNER_JOIN, j -> { j.from("USER"); j.from("GROUP");
-         * j.on("GROUP_ID", "ID"); });
+         * sql.join(Op.INNER_JOIN, j -> { j.from("USER"); j.from("GROUP"); j.on("GROUP_ID", "ID"); });
          */
     }
 
     @Override
-    public void where(Op operator, String operand1, String operand2) {
-        where(operator, Bind.PARAM, operand1, operand2);
+    public void where(String columnName, Op operator) {
+        addCondition(new UnaryCondition(operator, columnName));
     }
 
     @Override
-    public void where(Op operator, Bind bind, String operand1, String operand2) {
-        addCondition(new StringCondition(operator, bind, operand1, operand2));
+    public void where(String columnName, Op operator, Object... values) {
+        where(columnName, operator, Bind.PARAM, values);
+    }
+
+    @Override
+    public void where(String columnName, Op operator, Bind bind, Object... values) {
+        addCondition(new TernaryCondition(operator, bind, columnName, values));
     }
 
     @Override
@@ -153,20 +122,27 @@ public class Sql<T> implements WhereClause {
             throw new IllegalArgumentException();
         }
 
-        Sql<?> subquery = new Sql<>();
+        Sql subquery = new Sql();
         builder.build(subquery);
         addCondition(new SubqueryCondition(operator, subquery));
     }
 
     @Override
-    public void where(Op operator, SubqueryBuilder builder, String operand1) {
+    public void where(String columnName, Op operator, SubqueryBuilder builder) {
         if (operator == Op.EXISTS || operator == Op.NOT_EXISTS) {
             throw new IllegalArgumentException();
         }
 
-        Sql<?> subquery = new Sql<>();
+        Sql subquery = new Sql();
         builder.build(subquery);
-        addCondition(new SubqueryCondition(operator, subquery, operand1));
+        addCondition(new SubqueryCondition(operator, subquery, columnName));
+    }
+
+    @Override
+    public void where(String columName, Op operator, Op anyOrAll, SubqueryBuilder builder) {
+        Sql subquery = new Sql();
+        builder.build(subquery);
+        addCondition(new SubqueryCondition(columName, operator, anyOrAll, subquery));
     }
 
     private void addCondition(Condition condition) {
@@ -214,7 +190,7 @@ public class Sql<T> implements WhereClause {
     }
 
     private void addSetQuery(Op operator, SubqueryBuilder builder) {
-        Sql<?> subquery = new Sql<>();
+        Sql subquery = new Sql();
         builder.build(subquery);
         if (setQueries == null) {
             setQueries = new ArrayList<>();
@@ -282,6 +258,86 @@ public class Sql<T> implements WhereClause {
             }
             if (size > 1) {
                 codeBuilder.append(")");
+            }
+        }
+    }
+
+    public void each(ResultEach<ResultSet> consumer) {
+        each(consumer, Integer.MAX_VALUE);
+    }
+
+    public void each(ResultEach<ResultSet> consumer, int limit) {
+        try (Connection con = SqlRuntime.getInstance().getConnectionFactory().getConnection()) {
+            each(con, consumer, limit);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void each(Enum<?> connectionType, ResultEach<ResultSet> consumer) {
+        each(connectionType, consumer, Integer.MAX_VALUE);
+    }
+
+    public void each(Enum<?> connectionType, ResultEach<ResultSet> consumer, int limit) {
+        try (Connection con = SqlRuntime.getInstance().getConnectionFactory().getConnection(connectionType)) {
+            each(con, consumer, limit);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void each(Connection connection, ResultEach<ResultSet> consumer) {
+        each(connection, consumer, Integer.MAX_VALUE);
+    }
+
+    public void each(Connection connection, ResultEach<ResultSet> consumer, int limit) {
+        if (connection == null) {
+            throw new NullPointerException();
+        }
+
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            if (connection.isClosed()) {
+                throw new RuntimeException("java.sql.Connection is closed");
+            }
+            String sql = toSql();
+            if (Option.DEBUG_SQL.on()) {
+                System.out.println(sql);
+            }
+            pstmt = connection.prepareStatement(sql);
+            int index = 0;
+            for (Parameter each : getParameters()) {
+                if (each.prepared()) {
+                    for (Object value : each.getValues()) {
+                        pstmt.setObject(++index, value);
+                    }
+                }
+            }
+            rs = pstmt.executeQuery();
+            int i = 0;
+            while (rs.next()) {
+                consumer.accept(i++, rs);
+                if (i >= limit) {
+                    break;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (pstmt != null) {
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
