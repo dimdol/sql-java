@@ -263,7 +263,7 @@ public class Sql implements WhereClause {
     }
 
     public void each(ResultEach<ResultSet> consumer) {
-        each(consumer, Integer.MAX_VALUE);
+        each(consumer, Option.MAX_FETCH_LIMT.getInt());
     }
 
     public void each(ResultEach<ResultSet> consumer, int limit) {
@@ -275,7 +275,7 @@ public class Sql implements WhereClause {
     }
 
     public void each(Enum<?> connectionType, ResultEach<ResultSet> consumer) {
-        each(connectionType, consumer, Integer.MAX_VALUE);
+        each(connectionType, consumer, Option.MAX_FETCH_LIMT.getInt());
     }
 
     public void each(Enum<?> connectionType, ResultEach<ResultSet> consumer, int limit) {
@@ -287,7 +287,7 @@ public class Sql implements WhereClause {
     }
 
     public void each(Connection connection, ResultEach<ResultSet> consumer) {
-        each(connection, consumer, Integer.MAX_VALUE);
+        each(connection, consumer, Option.MAX_FETCH_LIMT.getInt());
     }
 
     public void each(Connection connection, ResultEach<ResultSet> consumer, int limit) {
@@ -295,8 +295,6 @@ public class Sql implements WhereClause {
             throw new NullPointerException();
         }
 
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
         try {
             if (connection.isClosed()) {
                 throw new RuntimeException("java.sql.Connection is closed");
@@ -305,40 +303,27 @@ public class Sql implements WhereClause {
             if (Option.DEBUG_SQL.on()) {
                 System.out.println(sql);
             }
-            pstmt = connection.prepareStatement(sql);
-            int index = 0;
-            for (Parameter each : getParameters()) {
-                if (each.prepared()) {
-                    for (Object value : each.getValues()) {
-                        pstmt.setObject(++index, value);
+            try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+                int index = 0;
+                for (Parameter each : getParameters()) {
+                    if (each.prepared()) {
+                        for (Object value : each.getValues()) {
+                            pstmt.setObject(++index, value);
+                        }
                     }
                 }
-            }
-            rs = pstmt.executeQuery();
-            int i = 0;
-            while (rs.next()) {
-                consumer.accept(i++, rs);
-                if (i >= limit) {
-                    break;
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    int i = 0;
+                    while (rs.next()) {
+                        consumer.accept(i++, rs);
+                        if (i >= limit) {
+                            break;
+                        }
+                    }
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            if (pstmt != null) {
-                try {
-                    pstmt.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
         }
     }
 
