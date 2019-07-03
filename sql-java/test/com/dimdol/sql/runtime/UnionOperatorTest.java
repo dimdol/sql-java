@@ -10,7 +10,7 @@ import com.dimdol.sql.Op;
 import com.dimdol.sql.Sql;
 import com.dimdol.sql.loader.DataLoader;
 
-public class SetOperatorTest {
+public class UnionOperatorTest {
 
     @BeforeClass
     public static void setUp() {
@@ -58,11 +58,12 @@ public class SetOperatorTest {
                 subquery.from("XZY_USER");
                 subquery.where("NAME", Op.EQUAL, "윤대협");
             });
+            sql.orderBy("NAME", Op.DESC);
             sql.each((i, rs) -> {
                 if (i == 0) {
-                    assertEquals("윤대협", rs.getString("NAME"));
-                } else {
                     assertEquals("정대만", rs.getString("NAME"));
+                } else {
+                    assertEquals("윤대협", rs.getString("NAME"));
                 }
             });
         });

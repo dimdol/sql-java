@@ -30,7 +30,8 @@ public class SetSqlTest {
             s.select("NAME");
             s.from("GROUP");
         });
-        assertEquals("(SELECT ID, NAME FROM USER UNION SELECT ID, NAME FROM GROUP)", sql.toSql());
+        sql.orderBy("NAME");
+        assertEquals("(SELECT ID, NAME FROM USER UNION SELECT ID, NAME FROM GROUP) ORDER BY NAME", sql.toSql());
     }
 
     @Test

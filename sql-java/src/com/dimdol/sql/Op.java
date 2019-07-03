@@ -56,6 +56,8 @@ public enum Op {
 
     EXCEPT("EXCEPT"),
 
+    MINUS("MINUS"),
+
     INTERSECT("INTERSECT"),
 
     ASC("ASC"),

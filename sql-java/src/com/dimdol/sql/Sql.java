@@ -185,6 +185,10 @@ public class Sql implements WhereClause {
         addSetQuery(Op.EXCEPT, builder);
     }
 
+    public void minus(SubqueryBuilder builder) {
+        addSetQuery(Op.MINUS, builder);
+    }
+
     public void intersect(SubqueryBuilder builder) {
         addSetQuery(Op.INTERSECT, builder);
     }
@@ -258,6 +262,9 @@ public class Sql implements WhereClause {
             }
             if (size > 1) {
                 codeBuilder.append(")");
+            }
+            if (orders != null) {
+                codeBuilder.build("ORDER BY", ",", orders);
             }
         }
     }
