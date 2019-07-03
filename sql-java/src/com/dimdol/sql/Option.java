@@ -2,12 +2,20 @@ package com.dimdol.sql;
 
 public enum Option {
 
-    DEBUG_SQL(false);
+    DEBUG_SQL(false),
 
-    boolean booleanValue;
+    MAX_FETCH_LIMT(1000);
+
+    private boolean booleanValue;
+
+    private int intValue;
 
     private Option(boolean booleanValue) {
         this.booleanValue = booleanValue;
+    }
+
+    private Option(int intValue) {
+        this.intValue = intValue;
     }
 
     public void enable() {
@@ -24,6 +32,14 @@ public enum Option {
 
     public boolean off() {
         return !on();
+    }
+
+    public int getInt() {
+        return intValue;
+    }
+
+    public void set(int intValue) {
+        this.intValue = intValue;
     }
 
 }
