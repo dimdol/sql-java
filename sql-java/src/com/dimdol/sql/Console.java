@@ -123,9 +123,9 @@ public class Console {
                 if (formatter != null) {
                     object = formatter.apply(columnEntry.label, object);
                 }
-                columnEntry.configure(object);
                 result.put(columnEntry.label, object);
             }
+            columnEntry.configure(object);
         }
         return result;
     }
@@ -134,7 +134,7 @@ public class Console {
         StringBuilder result = new StringBuilder();
         for (ColumnEntry columnEntry : columnEntries.values()) {
             if (result.length() > 0) {
-                result.append("  ");
+                result.append("    ");
             }
             result.append(columnEntry.getFormatPattern());
         }
@@ -208,9 +208,11 @@ public class Console {
 
         void configure(Object value) {
             if (value == null) {
-                return;
+                displaySize = Math.max(displaySize, 4);
             } else if (value instanceof String) {
                 displaySize = Math.max(displaySize, ((String) value).length());
+            } else {
+                displaySize = Math.max(displaySize, (value.toString()).length());
             }
 
         }
