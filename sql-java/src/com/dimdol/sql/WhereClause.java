@@ -1,5 +1,7 @@
 package com.dimdol.sql;
 
+import java.util.function.Consumer;
+
 public interface WhereClause {
 
     public void where(String columnName, Op operator);
@@ -14,10 +16,10 @@ public interface WhereClause {
 
     public void where(String columnName, Op operator, Op allOrAny, SubqueryBuilder builder);
 
-    public void or(CompositeConditionBuilder builder);
+    public void or(Consumer<CompositeCondition> or);
 
-    public void and(CompositeConditionBuilder builder);
+    public void and(Consumer<CompositeCondition> and);
 
-    public void not(CompositeConditionBuilder builder);
+    public void not(Consumer<CompositeCondition> not);
 
 }

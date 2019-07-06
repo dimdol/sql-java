@@ -2,6 +2,7 @@ package com.dimdol.sql;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class CompositeCondition extends Condition implements WhereClause {
 
@@ -15,16 +16,6 @@ public class CompositeCondition extends Condition implements WhereClause {
     public void where(String columnName, Op operator) {
         addCondition(new UnaryCondition(operator, columnName));
     }
-
-    // @Override
-    // public void where(Op operator, String operand1, Number operand2) {
-    // where(operator, Bind.PARAM, operand1, operand2);
-    // }
-    //
-    // @Override
-    // public void where(Op operator, Bind bind, String operand1, Number operand2) {
-    // addCondition(new NumberCondition(operator, bind, operand1, operand2));
-    // }
 
     @Override
     public void where(String columnName, Op operator, Object... values) {
@@ -70,23 +61,23 @@ public class CompositeCondition extends Condition implements WhereClause {
     }
 
     @Override
-    public void or(CompositeConditionBuilder builder) {
+    public void or(Consumer<CompositeCondition> or) {
         CompositeCondition condition = new CompositeCondition(Op.OR);
-        builder.build(condition);
+        or.accept(condition);
         addCondition(condition);
     }
 
     @Override
-    public void and(CompositeConditionBuilder builder) {
+    public void and(Consumer<CompositeCondition> and) {
         CompositeCondition condition = new CompositeCondition(Op.AND);
-        builder.build(condition);
+        and.accept(condition);
         addCondition(condition);
     }
 
     @Override
-    public void not(CompositeConditionBuilder builder) {
+    public void not(Consumer<CompositeCondition> not) {
         CompositeCondition condition = new CompositeCondition(Op.NOT);
-        builder.build(condition);
+        not.accept(condition);
         addCondition(condition);
     }
 

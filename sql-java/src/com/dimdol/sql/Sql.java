@@ -190,23 +190,23 @@ public class Sql implements WhereClause {
     }
 
     @Override
-    public void or(CompositeConditionBuilder builder) {
+    public void or(Consumer<CompositeCondition> or) {
         CompositeCondition condition = new CompositeCondition(Op.OR);
-        builder.build(condition);
+        or.accept(condition);
         addCondition(condition);
     }
 
     @Override
-    public void and(CompositeConditionBuilder builder) {
+    public void and(Consumer<CompositeCondition> and) {
         CompositeCondition condition = new CompositeCondition(Op.AND);
-        builder.build(condition);
+        and.accept(condition);
         addCondition(condition);
     }
 
     @Override
-    public void not(CompositeConditionBuilder builder) {
+    public void not(Consumer<CompositeCondition> not) {
         CompositeCondition condition = new CompositeCondition(Op.NOT);
-        builder.build(condition);
+        not.accept(condition);
         addCondition(condition);
     }
 
