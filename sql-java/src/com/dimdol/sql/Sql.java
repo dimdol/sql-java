@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public class Sql implements WhereClause {
@@ -27,6 +28,8 @@ public class Sql implements WhereClause {
     private List<OrderBy> orders;
 
     private SqlCodeBuilder codeBuilder;
+
+    private AtomicInteger fetchCount = new AtomicInteger();
 
     public Sql() {
         this(Op.AND);
@@ -360,6 +363,7 @@ public class Sql implements WhereClause {
                     int i = 0;
                     while (rs.next()) {
                         consumer.accept(i++, rs);
+                        fetchCount.incrementAndGet();
                         if (i >= limit) {
                             break;
                         }
@@ -369,6 +373,10 @@ public class Sql implements WhereClause {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public int getFetchCount() {
+        return fetchCount.get();
     }
 
 }
