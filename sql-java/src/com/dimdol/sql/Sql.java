@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class Sql implements WhereClause {
 
@@ -93,12 +94,48 @@ public class Sql implements WhereClause {
         tables.add(table);
     }
 
-    public void join() {
-        /*
-         * sql.join(j -> { j.from("USER"); j.from("GROUP"); j.on("GROUP_ID", "ID"); });
-         * 
-         * sql.join(Op.INNER_JOIN, j -> { j.from("USER"); j.from("GROUP"); j.on("GROUP_ID", "ID"); });
-         */
+    public void join(String tableName, String alias, String column1, String column2) {
+        join(tableName, alias, Keyword.JOIN, column1, column2);
+    }
+
+    public void join(String tableName, String alias, Consumer<JoinTable> on) {
+        join(tableName, alias, Keyword.JOIN, on);
+    }
+
+    public void leftJoin(String tableName, String alias, String column1, String column2) {
+        join(tableName, alias, Keyword.LEFT_JOIN, column1, column2);
+    }
+
+    public void leftJoin(String tableName, String alias, Consumer<JoinTable> on) {
+        join(tableName, alias, Keyword.LEFT_JOIN, on);
+    }
+
+    public void rightJoin(String tableName, String alias, String column1, String column2) {
+        join(tableName, alias, Keyword.RIGHT_JOIN, column1, column2);
+    }
+
+    public void rightJoin(String tableName, String alias, Consumer<JoinTable> on) {
+        join(tableName, alias, Keyword.RIGHT_JOIN, on);
+    }
+
+    public void fullJoin(String tableName, String alias, String column1, String column2) {
+        join(tableName, alias, Keyword.FULL_OUTER_JOIN, column1, column2);
+    }
+
+    public void fullJoin(String tableName, String alias, Consumer<JoinTable> on) {
+        join(tableName, alias, Keyword.FULL_OUTER_JOIN, on);
+    }
+
+    private void join(String tableName, String alias, Keyword joinType, String column1, String column2) {
+        join(tableName, alias, joinType, on -> {
+            on.and(column1, column2);
+        });
+    }
+
+    private void join(String tableName, String alias, Keyword joinType, Consumer<JoinTable> on) {
+        JoinTable table = new JoinTable(tableName, alias, joinType);
+        on.accept(table);
+        tables.add(table);
     }
 
     @Override

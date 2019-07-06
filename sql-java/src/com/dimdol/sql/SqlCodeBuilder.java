@@ -16,12 +16,13 @@ class SqlCodeBuilder {
         }
         addSpace();
         append(prefix);
-        for (int i = 0; i < units.size(); i++) {
-            if (i > 0) {
+        int size = units.size();
+        for (int i = 0; i < size; i++) {
+            Unit each = units.get(i);
+            if (i > 0 && !(each instanceof JoinTable)) {
                 append(separator);
             }
             addSpace();
-            Unit each = units.get(i);
             each.writeSql(this);
             if (each instanceof Parameter) {
                 Parameter parameter = (Parameter) each;
@@ -34,7 +35,7 @@ class SqlCodeBuilder {
             }
         }
     }
-    
+
     private void addSpace() {
         int length = code.length();
         if (length > 0) {
