@@ -27,6 +27,8 @@ public class Sql implements WhereClause {
 
     private List<OrderBy> orders;
 
+    private GroupBy groupBy;
+
     private SqlCodeBuilder codeBuilder;
 
     private AtomicInteger fetchCount = new AtomicInteger();
@@ -242,6 +244,10 @@ public class Sql implements WhereClause {
         setQueries.add(new SetQuery(operator, subquery));
     }
 
+    public void groupBy(String... columnNames) {
+        this.groupBy = new GroupBy(columnNames);
+    }
+
     public void orderBy(String orderBy) {
         if (orders == null) {
             orders = new ArrayList<>();
@@ -282,6 +288,10 @@ public class Sql implements WhereClause {
             }
             if (conditions != null) {
                 codeBuilder.build("WHERE", " " + whereMode.toSql(), conditions);
+            }
+            if (groupBy != null) {
+                codeBuilder.append(" ");
+                groupBy.writeSql(codeBuilder);
             }
             if (orders != null) {
                 codeBuilder.build("ORDER BY", ",", orders);
