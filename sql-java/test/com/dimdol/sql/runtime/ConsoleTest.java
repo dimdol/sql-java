@@ -73,4 +73,19 @@ public class ConsoleTest {
         });
     }
 
+    @Test
+    public void desc() {
+        DataLoader.run(loader -> {
+            loader.table("XZY_COMPANY", table -> {
+                table.column("ID");
+                table.column("NAME");
+                table.numberColumn("START_YEAR");
+                table.numberColumn("TIME");
+            });
+        }, () -> {
+            Console console = new Console();
+            console.desc("XZY_COMPANY");
+        });
+    }
+
 }

@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -83,95 +82,62 @@ public class Console {
             throw new IllegalStateException();
         }
 
-        Map<String, ColumnEntry> columnEntries = new LinkedHashMap<>();
-        List<Map<String, Object>> values = new ArrayList<>();
+        ConsoleData cd = new ConsoleData();
+        cd.setSorter(comparator);
+        cd.setFormatter(formatter);
         for (SqlEntry sqlEntry : sqlEntries) {
             sqlEntry.sql.each(sqlEntry.connectionType, (i, rs) -> {
                 if (i == 0) {
-                    configureColumnEntries(columnEntries, rs);
+                    configureColumnEntries(cd, rs);
                 }
-                values.add(loadObject(columnEntries, rs));
+                cd.addValue(rs);
             }, sqlEntry.limit);
         }
-
-        String linePattern = getLinePattern(columnEntries);
-        header(columnEntries, linePattern);
-        values(values, columnEntries, linePattern);
+        cd.log();
     }
 
-    private void configureColumnEntries(Map<String, ColumnEntry> columnEntries, ResultSet rs) throws SQLException {
+    public void desc(Enum<?> tableName) {
+        desc(tableName.toString());
+    }
+
+    public void desc(String tableName) {
+        Sql sql = new Sql();
+        sql.select("*");
+        sql.from(tableName);
+        sql.handle(pstmt -> {
+            ConsoleData cd = new ConsoleData();
+            cd.addEntry("NAME");
+            cd.addEntry("TYPE");
+            cd.addEntry("PRECISION");
+            cd.addEntry("SCALE");
+            cd.addEntry("IS_NULL");
+            try (ResultSet rs = pstmt.executeQuery()) {
+                ResultSetMetaData rsmd = rs.getMetaData();
+                int size = rsmd.getColumnCount();
+                for (int i = 1; i <= size; i++) {
+                    Map<String, Object> value = new HashMap<>();
+                    value.put("NAME", rsmd.getColumnName(i));
+                    value.put("TYPE", rsmd.getColumnTypeName(i));
+                    value.put("PRECISION", rsmd.getPrecision(i));
+                    value.put("SCALE", rsmd.getScale(i));
+                    if (rsmd.isNullable(i) == ResultSetMetaData.columnNoNulls) {
+                        value.put("IS_NULL", "IS NOT NULL");
+                    } else {
+                        value.put("IS_NULL", "");
+                    }
+                    cd.addValue(value);
+                }
+            }
+            cd.log();
+        });
+    }
+
+    private void configureColumnEntries(ConsoleData cd, ResultSet rs) throws SQLException {
         ResultSetMetaData rsmd = rs.getMetaData();
         int size = rsmd.getColumnCount();
         for (int columnIndex = 1; columnIndex <= size; columnIndex++) {
             String columnLabel = rsmd.getColumnLabel(columnIndex);
-            if (!columnEntries.containsKey(columnLabel)) {
-                columnEntries.put(columnLabel, new ColumnEntry(columnLabel));
-            }
-        }
-    }
-
-    private Map<String, Object> loadObject(Map<String, ColumnEntry> columnEntries, ResultSet rs) {
-        Map<String, Object> result = new HashMap<>();
-        for (ColumnEntry columnEntry : columnEntries.values()) {
-            Object object = null;
-            try {
-                object = rs.getObject(columnEntry.label);
-            } catch (SQLException ignore) {
-                // label이 존재하지 않을 때 발생하는 예외 무시
-            }
-            if (object != null) {
-                if (formatter != null) {
-                    object = formatter.apply(columnEntry.label, object);
-                }
-                result.put(columnEntry.label, object);
-            }
-            columnEntry.configure(object);
-        }
-        return result;
-    }
-
-    private String getLinePattern(Map<String, ColumnEntry> columnEntries) {
-        StringBuilder result = new StringBuilder();
-        for (ColumnEntry columnEntry : columnEntries.values()) {
-            if (result.length() > 0) {
-                result.append("    ");
-            }
-            result.append(columnEntry.getFormatPattern());
-        }
-        result.append("\n");
-        return result.toString();
-    }
-
-    private void header(Map<String, ColumnEntry> columnEntries, String linePattern) {
-        int columnIndex = 0;
-        Object[] args = new Object[columnEntries.size()];
-        for (ColumnEntry columnEntry : columnEntries.values()) {
-            args[columnIndex++] = columnEntry.label;
-        }
-        System.out.printf(linePattern, args);
-        columnIndex = 0;
-        args = new Object[columnEntries.size()];
-        while (columnIndex < args.length) {
-            args[columnIndex++] = "==";
-        }
-        System.out.printf(linePattern, args);
-    }
-
-    private void values(List<Map<String, Object>> values, Map<String, ColumnEntry> columnEntries, String linePattern) {
-        if (values.isEmpty()) {
-            return;
-        }
-
-        if (comparator != null) {
-            values.sort(comparator);
-        }
-        for (Map<String, Object> value : values) {
-            Object[] args = new Object[columnEntries.size()];
-            int i = 0;
-            for (ColumnEntry columnEntry : columnEntries.values()) {
-                args[i++] = value.get(columnEntry.label);
-            }
-            System.out.printf(linePattern, args);
+            cd.addEntry(columnLabel);
         }
     }
 
@@ -187,34 +153,6 @@ public class Console {
             this.connectionType = connectionType;
             this.sql = sql;
             this.limit = limit;
-        }
-
-    }
-
-    private class ColumnEntry {
-
-        String label;
-
-        int displaySize;
-
-        ColumnEntry(String label) {
-            this.label = label;
-            configure(label);
-        }
-
-        String getFormatPattern() {
-            return "%-" + displaySize + "s";
-        }
-
-        void configure(Object value) {
-            if (value == null) {
-                displaySize = Math.max(displaySize, 4);
-            } else if (value instanceof String) {
-                displaySize = Math.max(displaySize, ((String) value).length());
-            } else {
-                displaySize = Math.max(displaySize, (value.toString()).length());
-            }
-
         }
 
     }

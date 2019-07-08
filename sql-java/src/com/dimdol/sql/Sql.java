@@ -338,6 +338,29 @@ public class Sql implements WhereClause {
     }
 
     public void each(Connection connection, ResultEach<ResultSet> consumer, int limit) {
+        handle(connection, (pstmt) -> {
+            try (ResultSet rs = pstmt.executeQuery()) {
+                int i = 0;
+                while (rs.next()) {
+                    consumer.accept(i++, rs);
+                    fetchCount.incrementAndGet();
+                    if (i >= limit) {
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+    void handle(PreparedStatementHandler handler) {
+        try (Connection con = SqlRuntime.getInstance().getConnectionFactory().getConnection()) {
+            handle(con, handler);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    void handle(Connection connection, PreparedStatementHandler handler) {
         if (connection == null) {
             throw new NullPointerException();
         }
@@ -359,16 +382,7 @@ public class Sql implements WhereClause {
                         }
                     }
                 }
-                try (ResultSet rs = pstmt.executeQuery()) {
-                    int i = 0;
-                    while (rs.next()) {
-                        consumer.accept(i++, rs);
-                        fetchCount.incrementAndGet();
-                        if (i >= limit) {
-                            break;
-                        }
-                    }
-                }
+                handler.accept(pstmt);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
