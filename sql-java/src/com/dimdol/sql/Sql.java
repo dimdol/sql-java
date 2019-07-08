@@ -29,6 +29,8 @@ public class Sql implements WhereClause {
 
     private GroupBy groupBy;
 
+    private WhereClause having;
+
     private SqlCodeBuilder codeBuilder;
 
     private AtomicInteger fetchCount = new AtomicInteger();
@@ -248,6 +250,11 @@ public class Sql implements WhereClause {
         this.groupBy = new GroupBy(columnNames);
     }
 
+    public void having(Consumer<WhereClause> where) {
+        this.having = new Sql();
+        where.accept(having);
+    }
+
     public void orderBy(String orderBy) {
         if (orders == null) {
             orders = new ArrayList<>();
@@ -292,6 +299,9 @@ public class Sql implements WhereClause {
             if (groupBy != null) {
                 codeBuilder.append(" ");
                 groupBy.writeSql(codeBuilder);
+            }
+            if (having != null) {
+                codeBuilder.build("HAVING", " " + whereMode.toSql(), ((Sql) having).conditions);
             }
             if (orders != null) {
                 codeBuilder.build("ORDER BY", ",", orders);

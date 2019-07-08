@@ -16,7 +16,7 @@ public class GroupByTest {
     }
 
     @Test
-    public void orderBy() {
+    public void groupBy() {
         Sql sql = new Sql();
         sql.select("TYPE");
         sql.select("MIN(AGE)");

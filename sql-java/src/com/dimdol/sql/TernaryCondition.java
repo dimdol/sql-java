@@ -71,7 +71,11 @@ class TernaryCondition extends Condition implements Parameter {
                 builder.append(columnName + " " + getOperator().toSql() + " ?");
                 break;
             case VALUE:
-                builder.append(columnName + " " + getOperator().toSql() + " '" + values[0] + "'");
+                if (values[0] instanceof Number) {
+                    builder.append(columnName + " " + getOperator().toSql() + " " + values[0] + "");
+                } else {
+                    builder.append(columnName + " " + getOperator().toSql() + " '" + values[0] + "'");
+                }
                 break;
             case COLUMN:
                 builder.append(columnName + " " + getOperator().toSql() + " " + values[0]);
