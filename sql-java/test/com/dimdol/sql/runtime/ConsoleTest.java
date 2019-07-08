@@ -88,4 +88,38 @@ public class ConsoleTest {
         });
     }
 
+    @Test
+    public void time() {
+        DataLoader.run(loader -> {
+            loader.table("XZY_COMPANY", table -> {
+                table.column("ID");
+                table.column("NAME");
+                table.numberColumn("START_YEAR");
+                table.numberColumn("TIME");
+                table.record("A", "3Rabbitz", 2010, null);
+                table.record("C", "Walt Diseny", 1933, System.currentTimeMillis());
+                table.record("B", "Apple", 1975, System.currentTimeMillis());
+            });
+        }, () -> {
+            Console console = new Console();
+            console.add(sql -> {
+                sql.select("ID");
+                sql.select("NAME");
+                sql.select("TIME");
+                sql.from("XZY_COMPANY");
+                sql.where("NAME", Op.EQUAL, "Apple");
+                sql.orderBy("TIME");
+            }, 1);
+            console.add(sql -> {
+                sql.select("ID");
+                sql.select("NAME");
+                sql.select("TIME");
+                sql.from("XZY_COMPANY");
+                sql.where("ID", Op.EQUAL, "C");
+                sql.orderBy("TIME");
+            }, 1);
+            console.time(10);
+        });
+    }
+
 }

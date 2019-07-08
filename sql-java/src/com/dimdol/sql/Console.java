@@ -9,6 +9,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -97,6 +99,15 @@ public class Console {
         cd.log();
     }
 
+    private void configureColumnEntries(ConsoleData cd, ResultSet rs) throws SQLException {
+        ResultSetMetaData rsmd = rs.getMetaData();
+        int size = rsmd.getColumnCount();
+        for (int columnIndex = 1; columnIndex <= size; columnIndex++) {
+            String columnLabel = rsmd.getColumnLabel(columnIndex);
+            cd.addEntry(columnLabel);
+        }
+    }
+
     public void desc(Enum<?> tableName) {
         desc(tableName.toString());
     }
@@ -157,12 +168,27 @@ public class Console {
         });
     }
 
-    private void configureColumnEntries(ConsoleData cd, ResultSet rs) throws SQLException {
-        ResultSetMetaData rsmd = rs.getMetaData();
-        int size = rsmd.getColumnCount();
-        for (int columnIndex = 1; columnIndex <= size; columnIndex++) {
-            String columnLabel = rsmd.getColumnLabel(columnIndex);
-            cd.addEntry(columnLabel);
+    public void time() {
+        time(1);
+    }
+
+    public void time(int repeatCount) {
+        int no = 0;
+        for (SqlEntry sqlEntry : sqlEntries) {
+            Sql sql = sqlEntry.sql;
+            System.out.printf("#%d\n", ++no);
+            AtomicLong sum = new AtomicLong();
+            for (AtomicInteger count = new AtomicInteger(); count.intValue() < repeatCount; count.incrementAndGet()) {
+                sql.handle(pstmt -> {
+                    long time = System.currentTimeMillis();
+                    try (ResultSet rs = pstmt.executeQuery()) {
+                        long elapsed = System.currentTimeMillis() - time;
+                        System.out.printf("\t%3d: %6.4f\n", count.intValue() + 1, elapsed / 1000f);
+                        sum.addAndGet(elapsed);
+                    }
+                });
+            }
+            System.out.printf("\t===\n\tAVG: %6.4f\n", sum.longValue() / 1000f / repeatCount);
         }
     }
 
