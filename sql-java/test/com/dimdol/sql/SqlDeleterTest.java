@@ -2,7 +2,7 @@ package com.dimdol.sql;
 
 import java.sql.Connection;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class SqlDeleterTest {
 

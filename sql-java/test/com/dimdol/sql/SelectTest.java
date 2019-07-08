@@ -48,24 +48,6 @@ public class SelectTest {
     }
 
     @Test
-    public void distinct() {
-        Sql sql = new Sql();
-        sql.distinct();
-        sql.select("NAME");
-        sql.from("USER");
-        assertEquals("SELECT DISTINCT NAME FROM USER", sql.toSql());
-        assertEquals(0, sql.getParameters().size());
-
-        sql = new Sql();
-        sql.distinct();
-        sql.select("NAME");
-        sql.select("AGE");
-        sql.from("USER");
-        assertEquals("SELECT DISTINCT NAME, AGE FROM USER", sql.toSql());
-        assertEquals(0, sql.getParameters().size());
-    }
-
-    @Test
     public void subquery() {
         Sql sql = new Sql();
         sql.select("NAME");

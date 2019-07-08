@@ -1,6 +1,6 @@
 package com.dimdol.sql.runtime;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 import org.junit.BeforeClass;
 import org.junit.Test;

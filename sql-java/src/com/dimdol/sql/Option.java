@@ -2,6 +2,8 @@ package com.dimdol.sql;
 
 public enum Option {
 
+    DISTINCT,
+
     DEBUG_SQL(false),
 
     MAX_FETCH_LIMT(1000);
@@ -9,6 +11,9 @@ public enum Option {
     private boolean booleanValue;
 
     private int intValue;
+
+    private Option() {
+    }
 
     private Option(boolean booleanValue) {
         this.booleanValue = booleanValue;

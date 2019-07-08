@@ -15,7 +15,7 @@ public class Sql implements WhereClause {
 
     private Op whereMode;
 
-    private Set<Syntax> syntaxes = new HashSet<>();
+    private Set<Option> options = new HashSet<>();
 
     private List<Column> columns;
 
@@ -35,16 +35,17 @@ public class Sql implements WhereClause {
 
     private AtomicInteger fetchCount = new AtomicInteger();
 
-    public Sql() {
-        this(Op.AND);
+    public Sql(Option... options) {
+        this(Op.AND, options);
     }
 
-    public Sql(Op whereMode) {
+    public Sql(Op whereMode, Option... options) {
         this.whereMode = whereMode;
-    }
-
-    public void distinct() {
-        syntaxes.add(Syntax.DISTINCT);
+        if (options != null) {
+            for (Option each : options) {
+                this.options.add(each);
+            }
+        }
     }
 
     public void selectAll() {
@@ -288,7 +289,7 @@ public class Sql implements WhereClause {
     void buildQuery(SqlCodeBuilder codeBuilder) {
         if (setQueries == null || setQueries.isEmpty()) {
             if (columns != null) {
-                codeBuilder.build(syntaxes.contains(Syntax.DISTINCT) ? "SELECT DISTINCT" : "SELECT", ",", columns);
+                codeBuilder.build(options.contains(Option.DISTINCT) ? "SELECT DISTINCT" : "SELECT", ",", columns);
             }
             if (tables != null) {
                 codeBuilder.build("FROM", ",", tables);
