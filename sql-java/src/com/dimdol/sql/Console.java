@@ -1,5 +1,6 @@
 package com.dimdol.sql;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -101,10 +102,34 @@ public class Console {
     }
 
     public void desc(String tableName) {
+        try (Connection con = SqlRuntime.getInstance().getConnectionFactory().getConnection()) {
+            desc(con, tableName);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void desc(Enum<?> connectionType, Enum<?> tableName) {
+        desc(connectionType, tableName.toString());
+    }
+
+    public void desc(Enum<?> connectionType, String tableName) {
+        try (Connection con = SqlRuntime.getInstance().getConnectionFactory().getConnection(connectionType)) {
+            desc(con, tableName);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void desc(Connection con, Enum<?> tableName) {
+        desc(con, tableName.toString());
+    }
+
+    public void desc(Connection con, String tableName) {
         Sql sql = new Sql();
         sql.select("*");
         sql.from(tableName);
-        sql.handle(pstmt -> {
+        sql.handle(con, pstmt -> {
             ConsoleData cd = new ConsoleData();
             cd.addEntry("NAME");
             cd.addEntry("TYPE");
