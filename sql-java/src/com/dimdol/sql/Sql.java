@@ -15,7 +15,11 @@ public class Sql implements WhereClause {
 
     private Set<Option> options = new HashSet<>();
 
+    private InsertInto insert;
+
     private UpdateSet update;
+
+    private DeleteFrom delete;
 
     private List<Column> columns;
 
@@ -43,6 +47,19 @@ public class Sql implements WhereClause {
         }
     }
 
+    public void insertInto(String tableName) {
+        insert = new InsertInto(tableName);
+    }
+
+    public void value(String columnName, Object value) {
+        value(Bind.PARAM, columnName, value);
+    }
+
+    public void value(Bind bind, String columnName, Object value) {
+        // TODO insert가 null 일 때의 처리
+        insert.value(bind, columnName, value);
+    }
+
     public void update(String tableName) {
         update = new UpdateSet(tableName);
     }
@@ -54,6 +71,10 @@ public class Sql implements WhereClause {
     public void set(Bind bind, String columnName, Object value) {
         // TODO update가 null 일 때의 처리
         update.set(bind, columnName, value);
+    }
+
+    public void deleteFrom(String tableName) {
+        delete = new DeleteFrom(tableName);
     }
 
     public void selectAll() {
@@ -295,8 +316,15 @@ public class Sql implements WhereClause {
     }
 
     void buildQuery(SqlCodeBuilder codeBuilder) {
-        if (update != null) {
+        if (insert != null) {
+            insert.writeSql(codeBuilder);
+        } else if (update != null) {
             update.writeSql(codeBuilder);
+            if (conditions != null) {
+                codeBuilder.build("WHERE", options.contains(Option.OR) ? " OR" : " AND", conditions);
+            }
+        } else if (delete != null) {
+            delete.writeSql(codeBuilder);
             if (conditions != null) {
                 codeBuilder.build("WHERE", options.contains(Option.OR) ? " OR" : " AND", conditions);
             }
