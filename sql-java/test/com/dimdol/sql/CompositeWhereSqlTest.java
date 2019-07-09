@@ -22,10 +22,10 @@ public class CompositeWhereSqlTest {
         assertEquals("TEAM = 'Sales'", sql.getParameters().get(1).toString());
         assertEquals("JOB = 'Programmer'", sql.getParameters().get(2).toString());
     }
-    
+
     @Test
     public void and() {
-        Sql sql = new Sql(Op.OR);
+        Sql sql = new Sql(Option.OR);
         sql.selectAll();
         sql.from("USER");
         sql.where("TYPE", Op.EQUAL, "A");
@@ -39,10 +39,10 @@ public class CompositeWhereSqlTest {
         assertEquals("TEAM = 'Sales'", sql.getParameters().get(1).toString());
         assertEquals("JOB = 'Programmer'", sql.getParameters().get(2).toString());
     }
-    
+
     @Test
     public void not() {
-        Sql sql = new Sql(Op.OR);
+        Sql sql = new Sql(Option.OR);
         sql.selectAll();
         sql.from("USER");
         sql.where("TYPE", Op.EQUAL, "A");
@@ -54,7 +54,7 @@ public class CompositeWhereSqlTest {
         assertEquals("TYPE = 'A'", sql.getParameters().get(0).toString());
         assertEquals("TEAM = 'Sales'", sql.getParameters().get(1).toString());
     }
-    
+
     @Test
     public void nested() {
         Sql sql = new Sql();

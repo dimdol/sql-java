@@ -13,8 +13,6 @@ import java.util.function.Consumer;
 
 public class Sql implements WhereClause {
 
-    private Op whereMode;
-
     private Set<Option> options = new HashSet<>();
 
     private List<Column> columns;
@@ -36,11 +34,6 @@ public class Sql implements WhereClause {
     private AtomicInteger fetchCount = new AtomicInteger();
 
     public Sql(Option... options) {
-        this(Op.AND, options);
-    }
-
-    public Sql(Op whereMode, Option... options) {
-        this.whereMode = whereMode;
         if (options != null) {
             for (Option each : options) {
                 this.options.add(each);
@@ -295,14 +288,14 @@ public class Sql implements WhereClause {
                 codeBuilder.build("FROM", ",", tables);
             }
             if (conditions != null) {
-                codeBuilder.build("WHERE", " " + whereMode.toSql(), conditions);
+                codeBuilder.build("WHERE", options.contains(Option.OR) ? " OR" : " AND", conditions);
             }
             if (groupBy != null) {
                 codeBuilder.append(" ");
                 groupBy.writeSql(codeBuilder);
             }
             if (having != null) {
-                codeBuilder.build("HAVING", " " + whereMode.toSql(), ((Sql) having).conditions);
+                codeBuilder.build("HAVING", " AND", ((Sql) having).conditions);
             }
             if (orders != null) {
                 codeBuilder.build("ORDER BY", ",", orders);

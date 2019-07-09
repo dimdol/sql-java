@@ -4,6 +4,10 @@ public enum Option {
 
     DISTINCT,
 
+    OR,
+
+    AND,
+
     DEBUG_SQL(false),
 
     MAX_FETCH_LIMT(1000);
