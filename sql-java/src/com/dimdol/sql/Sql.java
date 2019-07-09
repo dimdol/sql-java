@@ -15,6 +15,8 @@ public class Sql implements WhereClause {
 
     private Set<Option> options = new HashSet<>();
 
+    private UpdateSet update;
+
     private List<Column> columns;
 
     private List<Table> tables;
@@ -39,6 +41,19 @@ public class Sql implements WhereClause {
                 this.options.add(each);
             }
         }
+    }
+
+    public void update(String tableName) {
+        update = new UpdateSet(tableName);
+    }
+
+    public void set(String columnName, Object value) {
+        set(Bind.PARAM, columnName, value);
+    }
+
+    public void set(Bind bind, String columnName, Object value) {
+        // TODO update가 null 일 때의 처리
+        update.set(bind, columnName, value);
     }
 
     public void selectAll() {
@@ -280,7 +295,12 @@ public class Sql implements WhereClause {
     }
 
     void buildQuery(SqlCodeBuilder codeBuilder) {
-        if (setQueries == null || setQueries.isEmpty()) {
+        if (update != null) {
+            update.writeSql(codeBuilder);
+            if (conditions != null) {
+                codeBuilder.build("WHERE", options.contains(Option.OR) ? " OR" : " AND", conditions);
+            }
+        } else if (setQueries == null || setQueries.isEmpty()) {
             if (columns != null) {
                 codeBuilder.build(options.contains(Option.DISTINCT) ? "SELECT DISTINCT" : "SELECT", ",", columns);
             }
@@ -321,6 +341,22 @@ public class Sql implements WhereClause {
                 codeBuilder.build("ORDER BY", ",", orders);
             }
         }
+    }
+
+    public int execute() {
+        try (Connection con = SqlRuntime.getInstance().getConnectionFactory().getConnection()) {
+            return execute(con);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public int execute(Connection connection) {
+        AtomicInteger result = new AtomicInteger();
+        handle(connection, (pstmt) -> {
+            result.set(pstmt.executeUpdate());
+        });
+        return result.intValue();
     }
 
     public void each(ResultEach<ResultSet> consumer) {
