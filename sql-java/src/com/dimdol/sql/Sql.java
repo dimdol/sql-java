@@ -114,6 +114,14 @@ public class Sql implements WhereClause {
         addTable(new Table(tableName, alias));
     }
 
+    public void from(Enum<?> tableName) {
+        from(tableName.toString());
+    }
+
+    public void from(Enum<?> tableName, String alias) {
+        from(tableName.toString(), alias);
+    }
+
     public void from(SubqueryBuilder builder) {
         from(builder, null);
     }

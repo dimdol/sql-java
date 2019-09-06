@@ -122,4 +122,16 @@ public class ConsoleTest {
         });
     }
 
+    @Test
+    public void databaseDesc() {
+        Console console = new Console();
+        console.desc();
+    }
+
+    @Test
+    public void catalog() {
+        Console console = new Console();
+        console.catalog();
+    }
+
 }

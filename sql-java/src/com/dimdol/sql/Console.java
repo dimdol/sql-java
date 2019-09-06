@@ -1,6 +1,7 @@
 package com.dimdol.sql;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -108,6 +109,10 @@ public class Console {
         }
     }
 
+    public void desc() {
+        new DatabaseDescription().desc();
+    }
+
     public void desc(Enum<?> tableName) {
         desc(tableName.toString());
     }
@@ -166,6 +171,17 @@ public class Console {
             }
             cd.log();
         });
+    }
+
+    public void catalog() {
+        try (Connection con = SqlRuntime.getInstance().getConnectionFactory().getConnection()) {
+            DatabaseMetaData dmd = con.getMetaData();
+            try (ResultSet rs = dmd.getColumns(null, null, "R_WEB_PAGE", null)) {
+                new ConsoleData(rs).log();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void time() {

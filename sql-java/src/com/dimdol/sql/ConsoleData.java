@@ -1,6 +1,7 @@
 package com.dimdol.sql;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -19,6 +20,20 @@ class ConsoleData {
     private Comparator<Map<String, Object>> comparator;
 
     private BiFunction<String, Object, Object> formatter;
+
+    ConsoleData() {
+    }
+
+    ConsoleData(ResultSet rs) throws SQLException {
+        ResultSetMetaData rsmd = rs.getMetaData();
+        int count = rsmd.getColumnCount();
+        for (int i = 1; i <= count; i++) {
+            addEntry(rsmd.getColumnLabel(i));
+        }
+        while (rs.next()) {
+            addValue(rs);
+        }
+    }
 
     void setSorter(Comparator<Map<String, Object>> comparator) {
         this.comparator = comparator;
