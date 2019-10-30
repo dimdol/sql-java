@@ -8,7 +8,7 @@
     <delete dir="${build.temp_dir}" />
     <mkdir dir="${build.temp_dir}" />
     <mkdir dir="${build.temp_dir}/src" />
-  	<mkdir dir="${build.temp_dir}/classes" />
+    <mkdir dir="${build.temp_dir}/classes" />
   </target>
 
   <target name="copy">
@@ -40,9 +40,9 @@
   <target name="default">
     <echo>${ant.project.name}</echo>
     <antcall target="init" />
-  	<antcall target="copy" />
-  	<antcall target="compile" />
-  	<antcall target="package" />
+    <antcall target="copy" />
+    <antcall target="compile" />
+    <antcall target="package" />
   </target>
 
 </project>
